@@ -2,7 +2,7 @@
 
 #======================================================================================================================
 # Title         : ubuntu-secure.sh
-# Description   : Initializes a mint Ubuntu 18.04 LTS installation
+# Description   : Initializes a mint Ubuntu 20.04 LTS installation
 # Author        : Mark Dumay
 # Date          : June 8th, 2020
 # Version       : 0.1
@@ -18,7 +18,7 @@ RED='\033[0;31m' # Red color
 GREEN='\033[0;32m' # Green color
 NC='\033[0m' # No Color
 BOLD='\033[1m' #Bold color
-SUPPORTED_VERSION=bionic
+SUPPORTED_VERSION=focal
 ADMIN_USER=admin
 CRON_SCHEDULE='*/5 * * * *'
 CRON_JOB='$CRON_SCHEDULE /bin/bash $SSH_IP_ALLOW_FILENAME'

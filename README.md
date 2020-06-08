@@ -2,7 +2,7 @@
 
 <!-- Tagline -->
 <p align="center">
-    <b>Harden a mint Ubuntu 18.04 LTS server</b>
+    <b>Harden a mint Ubuntu 20.04 LTS server</b>
     <br />
 </p>
 
@@ -37,14 +37,14 @@
 
 
 ## About
-[Ubuntu][ubuntu_url] is an open source software operating system that runs from the desktop to the cloud. It is a popular choice for cloud providers and has good support for container operations. *Ubuntu-secure* is a basic shell script to harden a mint Ubuntu server installation. The currently supported version is 18.04 LTS.
+[Ubuntu][ubuntu_url] is an open source software operating system that runs from the desktop to the cloud. It is a popular choice for cloud providers and has good support for container operations. *Ubuntu-secure* is a basic shell script to harden a mint Ubuntu server installation. The currently supported version is 20.04 LTS.
 
 <!-- TODO: add tutorial deep-link 
 Detailed background information is available on the author's [personal blog][blog].
 -->
 
 ## Prerequisites
-*Ubuntu-secure* runs on a remote server with Ubuntu 18.04 LTS installed. Other prerequisites are:
+*Ubuntu-secure* runs on a remote server with Ubuntu 20.04 LTS installed. Other prerequisites are:
 
 * **SSH admin access is required** - Ubuntu-secure runs as a shell script on the terminal.
 * **A Ubuntu One account is recommended** - Canonical offers a livepatch service, which is free for personal use up to 3 machines. You can register at [this][livepatch] site. Once registered you get a token linked to your account.
@@ -71,7 +71,7 @@ sudo ./ubuntu-secure.sh [OPTIONS] COMMAND
 
 | Command       | Argument  | Description |
 |---------------|-----------|-------------|
-| **`init`**    |           | Hardens a mint Ubuntu 18.04 LTS server |
+| **`init`**    |           | Hardens a mint Ubuntu 20.04 LTS server |
 
 The `init` command  executes the following sequence of steps.
 * **A) Create a Non-Root User with Sudo Privileges** - Creates a non-root user `admin` with administrative privileges.
