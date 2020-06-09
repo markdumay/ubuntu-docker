@@ -159,4 +159,4 @@ Copyright © [Mark Dumay][blog]
 [blog]: https://markdumay.com
 -->
 [blog]: https://github.com/markdumay
-[repository]: https://github.com/markdumay/Ubuntu-docker.git
+[repository]: https://github.com/markdumay/ubuntu-docker.git
