@@ -37,7 +37,7 @@
 
 
 ## About
-Docker is a lightweight virtualization application that gives you the ability to run containers directly on your server. *Ubuntu-docker* is a basic shell script to install Docker on a hardened [Ubuntu][ubuntu_url] 20.04 LTS host.
+Docker is a lightweight virtualization application that gives you the ability to run containers directly on your server. *Ubuntu-docker* is a basic shell script to harden a [Ubuntu][ubuntu_url] 20.04 LTS host and to install Docker and Docker Compose on this host. The host is setup as a Docker Swarm manager.
 
 <!-- TODO: add tutorial deep-link 
 Detailed background information is available on the author's [personal blog][blog].
@@ -50,7 +50,7 @@ Detailed background information is available on the author's [personal blog][blo
 * **A Ubuntu One account is recommended** - Canonical offers a *livepatch* service, which is free for personal use up to 3 machines. You can register at [this][livepatch] site. Once registered you get a token linked to your account.
 
 ## Deployment
-Deployment of *Ubuntu-docker* is a matter of cloning the GitHub repository. Login to your server via SSH first. Assuming you are in the working folder of your choice, clone the repository files. Git automatically creates a new folder `ubuntu-docker` and copies the files to this directory. Then change your current folder to simplify the execution of the shell script.
+Deployment of *ubuntu-docker* is a matter of cloning the GitHub repository. Login to your server via SSH first. Assuming you are in the working folder of your choice, clone the repository files. Git automatically creates a new folder `ubuntu-docker` and copies the files to this directory. Then change your current folder to simplify the execution of the shell script.
 
 ```console
 git clone https://github.com/markdumay/ubuntu-docker.git
