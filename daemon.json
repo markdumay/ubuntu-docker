@@ -1,0 +1,8 @@
+{
+    "icc": false,
+    "userns-remap": "default",
+    "log-driver": "syslog",
+    "live-restore": false,
+    "userland-proxy": false,
+    "no-new-privileges": true
+}
