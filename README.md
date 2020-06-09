@@ -9,17 +9,17 @@
 
 <!-- Badges -->
 <p align="center">
-    <a href="https://github.com/markdumay/Ubuntu-docker/commits/master" alt="Last commit">
-        <img src="https://img.shields.io/github/last-commit/markdumay/Ubuntu-docker.svg" />
+    <a href="https://github.com/markdumay/ubuntu-docker/commits/master" alt="Last commit">
+        <img src="https://img.shields.io/github/last-commit/markdumay/ubuntu-docker.svg" />
     </a>
-    <a href="https://github.com/markdumay/Ubuntu-docker/issues" alt="Issues">
-        <img src="https://img.shields.io/github/issues/markdumay/Ubuntu-docker.svg" />
+    <a href="https://github.com/markdumay/ubuntu-docker/issues" alt="Issues">
+        <img src="https://img.shields.io/github/issues/markdumay/ubuntu-docker.svg" />
     </a>
-    <a href="https://github.com/markdumay/Ubuntu-docker/pulls" alt="Pulls">
-        <img src="https://img.shields.io/github/issues-pr-raw/markdumay/Ubuntu-docker.svg" />
+    <a href="https://github.com/markdumay/ubuntu-docker/pulls" alt="Pulls">
+        <img src="https://img.shields.io/github/issues-pr-raw/markdumay/ubuntu-docker.svg" />
     </a>
-    <a href="https://github.com/markdumay/Ubuntu-docker/blob/master/LICENSE" alt="License">
-        <img src="https://img.shields.io/github/license/markdumay/Ubuntu-docker.svg" />
+    <a href="https://github.com/markdumay/ubuntu-docker/blob/master/LICENSE" alt="License">
+        <img src="https://img.shields.io/github/license/markdumay/ubuntu-docker.svg" />
     </a>
 </p>
 
@@ -136,8 +136,8 @@ The `install` command executes the following workflow.
 <a href="https://www.buymeacoffee.com/markdumay" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/lato-orange.png" alt="Buy Me A Coffee" style="height: 51px !important;width: 217px !important;"></a>
 
 ## License
-<a href="https://github.com/markdumay/Ubuntu-docker/blob/master/LICENSE" alt="License">
-    <img src="https://img.shields.io/github/license/markdumay/Ubuntu-docker.svg" />
+<a href="https://github.com/markdumay/ubuntu-docker/blob/master/LICENSE" alt="License">
+    <img src="https://img.shields.io/github/license/markdumay/ubuntu-docker.svg" />
 </a>
 
 Copyright © [Mark Dumay][blog]
