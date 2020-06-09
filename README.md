@@ -1,8 +1,8 @@
-# ubuntu-secure
+# ubuntu-docker
 
 <!-- Tagline -->
 <p align="center">
-    <b>Harden a mint Ubuntu 20.04 LTS server</b>
+    <b>Install Docker on a mint Ubuntu 20.04 LTS server</b>
     <br />
 </p>
 
