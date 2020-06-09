@@ -37,7 +37,7 @@
 
 
 ## About
-Docker is a lightweight virtualization application that gives you the ability to run containers directly on your server. *Ubuntu-docker* is a basic shell script to harden a [Ubuntu][ubuntu_url] 20.04 LTS host and to install Docker and Docker Compose on this host. The host is setup as a Docker Swarm manager.
+[Docker][docker_info] is a lightweight virtualization application that gives you the ability to run containers directly on your server. *Ubuntu-docker* is a basic shell script to harden a [Ubuntu][ubuntu_url] 20.04 LTS host and to install Docker and Docker Compose on this host. The host is setup as a Docker Swarm manager.
 
 <!-- TODO: add tutorial deep-link 
 Detailed background information is available on the author's [personal blog][blog].
@@ -145,6 +145,7 @@ Copyright © [Mark Dumay][blog]
 
 
 <!-- MARKDOWN PUBLIC LINKS -->
+[docker_info]: https://www.docker.com/why-docker
 [ubuntu_url]: https://ubuntu.com
 [digital_ocean_bench]: https://www.digitalocean.com/community/tutorials/how-to-audit-docker-host-security-with-docker-bench-for-security-on-ubuntu-16-04
 [digital_ocean_setup]: https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04
