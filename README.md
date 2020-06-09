@@ -2,7 +2,7 @@
 
 <!-- Tagline -->
 <p align="center">
-    <b>Install Docker on a mint Ubuntu 20.04 LTS server</b>
+    <b>Install Docker on a Mint Ubuntu 20.04 LTS Server</b>
     <br />
 </p>
 
