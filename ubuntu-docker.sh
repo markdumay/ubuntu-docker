@@ -292,7 +292,8 @@ execute_docker_swarm() {
     print_status "Initializing Docker Swarm"
     SWARM="$(docker info | grep -c 'Swarm: active')"
     if [ ! "$SWARM" == '1' ] ; then
-        docker swarm init
+        PUBLIC_IP=$"(curl https://ipinfo.io/ip)"
+        docker swarm init --advertise-addr "$PUBLIC_IP" --listen-addr "$PUBLIC_IP"
     else
         echo "Skipped, Docker Swarm already active"
     fi
