@@ -121,8 +121,8 @@ Copyright © [Mark Dumay][blog]
 <!-- MARKDOWN PUBLIC LINKS -->
 [ubuntu_url]: https://ubuntu.com
 [livepatch]: https://ubuntu.com/livepatch
-[hostadvice]: https://hostadvice.com/how-to/how-to-harden-your-ubuntu-18-04-server/
 [eurovps]: https://www.eurovps.com/blog/20-ways-to-secure-linux-vps/
+[hostadvice]: https://hostadvice.com/how-to/how-to-harden-your-ubuntu-18-04-server/
 
 
 <!-- MARKDOWN MAINTAINED LINKS -->
