@@ -4,8 +4,8 @@
 # Title         : ubuntu-docker.sh
 # Description   : Installs Docker on a mint Ubuntu 20.04 LTS server
 # Author        : Mark Dumay
-# Date          : June 9th, 2020
-# Version       : 0.1
+# Date          : September 24th, 2020
+# Version       : 0.2
 # Usage         : sudo ./ubuntu-docker.sh [OPTIONS] COMMAND
 # Repository    : https://github.com/markdumay/ubuntu-docker.git
 # Comments      : 
