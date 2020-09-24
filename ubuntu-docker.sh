@@ -72,7 +72,7 @@ print_status () {
 # Validate host is Ubuntu 20.04 (focal fossa)
 validate_current_version() {
     if [ "$FORCE" != 'true' ] ; then
-        local ACTUAL_VERSION="$(cat /etc/os-release | grep '^VERSION_CODENAME' | cut -d'=' -f2)"
+        local ACTUAL_VERSION=$(cat /etc/os-release | grep '^VERSION_CODENAME' | cut -d'=' -f2)
         if [ "$ACTUAL_VERSION" != "$SUPPORTED_VERSION" ] ; then
             terminate "This script supports Ubuntu 20.04 only, use --force to override"
         fi
@@ -112,7 +112,7 @@ detect_available_versions() {
 execute_create_admin_user() {
     print_status "Create a non-root user with sudo privileges"
 
-    local USER_NOT_EXISTS="$(id -u $ADMIN_USER > /dev/null 2>&1; echo $?)"
+    local USER_NOT_EXISTS=$(id -u $ADMIN_USER > /dev/null 2>&1; echo $?)
     if [ "$USER_NOT_EXISTS" == 1 ] ; then
         adduser --quiet --gecos "" "$ADMIN_USER"
         usermod -aG sudo "$ADMIN_USER"
@@ -141,7 +141,7 @@ execute_disable_remote_root() {
 execute_secure_memory() {
     print_status "Secure Shared Memory"
 
-    local SHM="$(cat /etc/fstab | grep '/run/shm')"
+    local SHM=$(cat /etc/fstab | grep '/run/shm')
     if [ ! "$SHM" ] ; then
         echo 'none /run/shm tmpfs defaults,ro 0 0' >> /etc/fstab
     else
@@ -153,7 +153,7 @@ execute_secure_memory() {
 execute_make_boot_read_only() {
     print_status "Make /boot read-only"
 
-    local BOOT="$(cat /etc/fstab | grep 'LABEL=/boot') "
+    local BOOT=$(cat /etc/fstab | grep 'LABEL=/boot')
     if [ ! "$BOOT" ] ; then
         echo 'LABEL=/boot /boot ext2 defaults, ro 1 2' >> /etc/fstab
     else
@@ -261,7 +261,7 @@ execute_enable_docker_audit() {
     print_status "Enable auditing for Docker daemon and directories"
     apt-get -y install auditd -qq
 
-    local AUDIT="$(cat /etc/audit/rules.d/audit.rules | grep '/usr/bin/docker')"
+    local AUDIT=$(cat /etc/audit/rules.d/audit.rules | grep '/usr/bin/docker')
     if [ -z "$AUDIT" ] ; then
         echo "-w /usr/bin/docker -p wa" | sudo tee -a /etc/audit/rules.d/audit.rules
         echo "-w /usr/bin/dockerd -p wa" | sudo tee -a /etc/audit/rules.d/audit.rules
@@ -300,9 +300,9 @@ execute_download_install_compose() {
 # Initialize Docker Swarm
 execute_docker_swarm() {
     print_status "Initializing Docker Swarm"
-    local SWARM="$(docker info | grep -c 'Swarm: active')"
+    local SWARM=$(docker info | grep -c 'Swarm: active')
     if [ ! "$SWARM" == '1' ] ; then
-        local PUBLIC_IP=$"(curl https://ipinfo.io/ip)"
+        local PUBLIC_IP=$(curl https://ipinfo.io/ip)
         docker swarm init --advertise-addr "$PUBLIC_IP" --listen-addr "$PUBLIC_IP"
     else
         echo "Skipped, Docker Swarm already active"
