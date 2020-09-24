@@ -176,7 +176,7 @@ execute_install_livepatch() {
         export PATH="$PATH:/snap/bin"  # add manually to /etc/environment
 
         # reset existing machine id
-        rm /etc/machine-id /var/lib/dbus/machine-id && systemd-machine-id-setup
+        rm /etc/machine-id /var/lib/dbus/machine-id > /dev/null 2>&1 ; dbus-uuidgen --ensure=/etc/machine-id
 
         # install snap and livepatch
         apt-get install -y snapd > /dev/null 2>&1
