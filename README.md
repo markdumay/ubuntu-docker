@@ -91,7 +91,7 @@ The `init` command executes the following sequence of steps.
 4. **Make Boot Files Read-Only** - Prevents unauthorized modifications to the server boot files.
 5. **Install Fail2Ban** - Prevents brute-force attacks by banning repeat login attempts from a single IP address.
 6. **Enable Livepatch** - If `CANONICAL_TOKEN` is specified in `.env`, automatically applies critical kernel security fixes without rebooting.
-7. **Enable Swap Limit Support** - Updates grub to enable swap limit support (recommended by Docker, requires reboot)
+7. **Enable Swap Limit Support** - Updates grub to enable swap limit support (recommended by Docker, requires reboot).
 8. **Enable Firewall** - Installs Uncomplicated Firewall (UFW) to only allow web traffic (port 80 and port 443) and SSH-traffic (port `IP_SSH_PORT`) to the server. If `IP_SSH_ALLOW_HOSTNAME` is specified in the `.env` file, a cron job is executed every 5 minutes to poll for the IP address associated with the hostname. SSH access is then restricted to this IP address only.
 
 The `install` command executes the following workflow.
