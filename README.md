@@ -102,7 +102,8 @@ The `install` command executes the following workflow.
 5. **Docker Environment** - Ensures Content Trust for Docker is enabled (verifies signatures of Docker images).
 6. **Download and Install Docker Compose** - Downloads and installs the latest Docker Compose binary.
 7. **Initialize Docker Swarm** - Initializes Docker to become a Swarm Manager.
-8. **Configure Ports for Swarm Communication** - Enables specific TCP and UDP ports needed for Docker Swarm communication between nodes if the option `--ports` is present, disables ports otherwise. 
+8. **Encrypt Ingress Network** - Encrypts default overlay network for Docker Swarm.
+9. **Configure Ports for Swarm Communication** - Enables specific TCP and UDP ports needed for Docker Swarm communication between nodes if the option `--ports` is present, disables ports otherwise. 
 
 
 

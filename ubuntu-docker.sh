@@ -324,6 +324,14 @@ execute_docker_swarm() {
     fi
 }
 
+# Encrypts application data traffic for default Swarm overlay network
+execute_encrypt_ingress() {
+    print_status "Recreating ingress network to enable encryption"
+
+    yes | docker network rm ingress
+    docker network create --driver overlay --opt encrypted --ingress ingress
+}
+
 # Configure Docker Swarm Ports (including Docker Machine)
 execute_configure_swarm_ports() {
     print_status "Configuring Docker Swarm Ports"
@@ -398,7 +406,7 @@ case "$COMMAND" in
         execute_install_firewall
         ;;
     install )
-        TOTAL_STEPS=8
+        TOTAL_STEPS=9
         validate_current_version
         detect_available_versions
         init_env_variables
@@ -409,6 +417,7 @@ case "$COMMAND" in
         execute_docker_environment
         execute_download_install_compose
         execute_docker_swarm
+        execute_encrypt_ingress
         execute_configure_swarm_ports
         ;;
     * )
