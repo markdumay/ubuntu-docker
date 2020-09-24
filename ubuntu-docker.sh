@@ -173,15 +173,20 @@ execute_install_livepatch() {
     print_status "Install Canonical Livepatch"
 
     if [ ! -z "$CANONICAL_TOKEN" ] ; then
-        export PATH="$PATH:/snap/bin"  # add manually to /etc/environment
+        local STATUS=$(systemctl | grep /run/snapd/ns/canonical-livepatch.mnt | grep -o active)
+        if [ "$STATUS" != 'active' ] ; then
+            export PATH="$PATH:/snap/bin"  # add manually to /etc/environment
 
-        # reset existing machine id
-        rm /etc/machine-id /var/lib/dbus/machine-id > /dev/null 2>&1 ; dbus-uuidgen --ensure=/etc/machine-id
+            # reset existing machine id
+            rm /etc/machine-id /var/lib/dbus/machine-id > /dev/null 2>&1 ; dbus-uuidgen --ensure=/etc/machine-id
 
-        # install snap and livepatch
-        apt-get install -y snapd > /dev/null 2>&1
-        snap install canonical-livepatch
-        canonical-livepatch enable "$CANONICAL_TOKEN"
+            # install snap and livepatch
+            apt-get install -y snapd > /dev/null 2>&1
+            snap install canonical-livepatch
+            canonical-livepatch enable "$CANONICAL_TOKEN"
+        else
+            echo "Skipped, Canonical Livepatch already installed"
+        fi
     else
         echo "Skipped, 'CANONICAL_TOKEN' not specified"
     fi
