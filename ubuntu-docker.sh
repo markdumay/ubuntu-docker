@@ -192,6 +192,21 @@ execute_install_livepatch() {
     fi
 }
 
+# Enable swap limit support
+execute_enable_swap_limit() {
+    print_status "Enable swap limit support"
+
+    local CONFIG='GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"'
+    local SWAP=$(cat /etc/default/grub | grep "$CONFIG")
+
+    if [ -z "$SWAP" ] ; then
+        echo "$CONFIG" >> /etc/default/grub
+        update-grub
+    else   
+        echo "Skipped, swap limiting already enabled"
+    fi
+}
+
 # Configure and enable firewall
 execute_install_firewall() {
     print_status "Configure and enable firewall"
@@ -370,7 +385,7 @@ done
 # Execute workflows
 case "$COMMAND" in
     init )
-        TOTAL_STEPS=7
+        TOTAL_STEPS=8
         validate_current_version
         init_env_variables
         execute_create_admin_user
@@ -379,6 +394,7 @@ case "$COMMAND" in
         execute_make_boot_read_only
         execute_install_fail2ban
         execute_install_livepatch
+        execute_enable_swap_limit
         execute_install_firewall
         ;;
     install )
