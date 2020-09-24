@@ -8,7 +8,7 @@
 # Version       : 0.2
 # Usage         : sudo ./ssh_ip_allow.sh
 # Repository    : https://github.com/markdumay/ubuntu-docker.git
-# Comments      : ubuntu-docker.sh
+# Comments      : Used by ubuntu-docker.sh
 #======================================================================================================================
 
 #======================================================================================================================
