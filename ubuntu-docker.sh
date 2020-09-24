@@ -174,6 +174,11 @@ execute_install_livepatch() {
 
     if [ ! -z "$CANONICAL_TOKEN" ] ; then
         export PATH="$PATH:/snap/bin"  # add manually to /etc/environment
+
+        # reset existing machine id
+        rm /etc/machine-id /var/lib/dbus/machine-id && systemd-machine-id-setup
+
+        # install snap and livepatch
         apt-get install -y snapd > /dev/null 2>&1
         snap install canonical-livepatch
         canonical-livepatch enable "$CANONICAL_TOKEN"
