@@ -4,8 +4,8 @@
 # Title         : ubuntu-docker.sh
 # Description   : Installs Docker on a mint Ubuntu 20.04 LTS server
 # Author        : Mark Dumay
-# Date          : June 9th, 2020
-# Version       : 0.1
+# Date          : September 24th, 2020
+# Version       : 0.2
 # Usage         : sudo ./ubuntu-docker.sh [OPTIONS] COMMAND
 # Repository    : https://github.com/markdumay/ubuntu-docker.git
 # Comments      : 
@@ -173,10 +173,20 @@ execute_install_livepatch() {
     print_status "Install Canonical Livepatch"
 
     if [ ! -z "$CANONICAL_TOKEN" ] ; then
-        export PATH="$PATH:/snap/bin"  # add manually to /etc/environment
-        apt-get install -y snapd > /dev/null 2>&1
-        snap install canonical-livepatch
-        canonical-livepatch enable "$CANONICAL_TOKEN"
+        local STATUS=$(systemctl | grep /run/snapd/ns/canonical-livepatch.mnt | grep -o active)
+        if [ "$STATUS" != 'active' ] ; then
+            export PATH="$PATH:/snap/bin"  # add manually to /etc/environment
+
+            # reset existing machine id
+            rm /etc/machine-id /var/lib/dbus/machine-id > /dev/null 2>&1 ; dbus-uuidgen --ensure=/etc/machine-id
+
+            # install snap and livepatch
+            apt-get install -y snapd > /dev/null 2>&1
+            snap install canonical-livepatch
+            canonical-livepatch enable "$CANONICAL_TOKEN"
+        else
+            echo "Skipped, Canonical Livepatch already installed"
+        fi
     else
         echo "Skipped, 'CANONICAL_TOKEN' not specified"
     fi
