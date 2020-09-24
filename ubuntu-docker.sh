@@ -72,7 +72,7 @@ print_status () {
 # Validate host is Ubuntu 20.04 (focal fossa)
 validate_current_version() {
     if [ "$FORCE" != 'true' ] ; then
-        ACTUAL_VERSION="$(cat /etc/os-release | grep '^VERSION_CODENAME' | cut -d'=' -f2)"
+        local ACTUAL_VERSION="$(cat /etc/os-release | grep '^VERSION_CODENAME' | cut -d'=' -f2)"
         if [ "$ACTUAL_VERSION" != "$SUPPORTED_VERSION" ] ; then
             terminate "This script supports Ubuntu 20.04 only, use --force to override"
         fi
@@ -93,9 +93,9 @@ init_env_variables() {
 
 # Detects available versions for Docker Compose
 detect_available_versions() {
-    COMPOSE_TAGS=$(curl -s "$DOWNLOAD_GITHUB/tags" | egrep "a href=\"$GITHUB_RELEASES/[0-9]+.[0-9]+.[0-9]+\"")
-    LATEST_COMPOSE_VERSION=$(echo "$COMPOSE_TAGS" | head -1 | cut -c 45- | sed "s/\">//g")
-    TARGET_COMPOSE_VERSION=$LATEST_COMPOSE_VERSION
+    local COMPOSE_TAGS=$(curl -s "$DOWNLOAD_GITHUB/tags" | egrep "a href=\"$GITHUB_RELEASES/[0-9]+.[0-9]+.[0-9]+\"")
+    local LATEST_COMPOSE_VERSION=$(echo "$COMPOSE_TAGS" | head -1 | cut -c 45- | sed "s/\">//g")
+    TARGET_COMPOSE_VERSION="$LATEST_COMPOSE_VERSION"
 
     # Test Docker Compose is available for download, exit otherwise
     if [ -z "$TARGET_COMPOSE_VERSION" ] ; then
@@ -112,10 +112,10 @@ detect_available_versions() {
 execute_create_admin_user() {
     print_status "Create a non-root user with sudo privileges"
 
-    USER_NOT_EXISTS="$(id -u $ADMIN_USER > /dev/null 2>&1; echo $?)"
+    local USER_NOT_EXISTS="$(id -u $ADMIN_USER > /dev/null 2>&1; echo $?)"
     if [ "$USER_NOT_EXISTS" == 1 ] ; then
-        adduser --quiet --gecos "" $ADMIN_USER
-        usermod -aG sudo $ADMIN_USER
+        adduser --quiet --gecos "" "$ADMIN_USER"
+        usermod -aG sudo "$ADMIN_USER"
     else
         echo "Skipped, user already exists"
     fi
@@ -125,7 +125,7 @@ execute_create_admin_user() {
 execute_disable_remote_root() {
     print_status "Disable remote root login"
 
-    PERMIT_ROOT_LOGIN=$(cat /etc/ssh/sshd_config | grep "PermitRootLogin yes")
+    local PERMIT_ROOT_LOGIN=$(cat /etc/ssh/sshd_config | grep "PermitRootLogin yes")
 
     if [ ! -z "$PERMIT_ROOT_LOGIN" ] ; then
         sed -i 's/PermitRootLogin yes/PermitRootLogin no/g' /etc/ssh/sshd_config
@@ -141,7 +141,7 @@ execute_disable_remote_root() {
 execute_secure_memory() {
     print_status "Secure Shared Memory"
 
-    SHM="$(cat /etc/fstab | grep '/run/shm')"
+    local SHM="$(cat /etc/fstab | grep '/run/shm')"
     if [ ! "$SHM" ] ; then
         echo 'none /run/shm tmpfs defaults,ro 0 0' >> /etc/fstab
     else
@@ -153,7 +153,7 @@ execute_secure_memory() {
 execute_make_boot_read_only() {
     print_status "Make /boot read-only"
 
-    BOOT="$(cat /etc/fstab | grep 'LABEL=/boot') "
+    local BOOT="$(cat /etc/fstab | grep 'LABEL=/boot') "
     if [ ! "$BOOT" ] ; then
         echo 'LABEL=/boot /boot ext2 defaults, ro 1 2' >> /etc/fstab
     else
@@ -261,7 +261,7 @@ execute_enable_docker_audit() {
     print_status "Enable auditing for Docker daemon and directories"
     apt-get -y install auditd -qq
 
-    AUDIT="$(cat /etc/audit/rules.d/audit.rules | grep '/usr/bin/docker')"
+    local AUDIT="$(cat /etc/audit/rules.d/audit.rules | grep '/usr/bin/docker')"
     if [ -z "$AUDIT" ] ; then
         echo "-w /usr/bin/docker -p wa" | sudo tee -a /etc/audit/rules.d/audit.rules
         echo "-w /usr/bin/dockerd -p wa" | sudo tee -a /etc/audit/rules.d/audit.rules
@@ -287,8 +287,8 @@ execute_docker_environment() {
 # Download and install Docker Compose
 execute_download_install_compose() {
     print_status "Downloading and installing Docker Compose ($TARGET_COMPOSE_VERSION)"
-    COMPOSE_BIN="$DOWNLOAD_GITHUB/releases/download/$TARGET_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)"
-    RESPONSE=$(curl -L "$COMPOSE_BIN" --write-out %{http_code} -o "$WORKING_DIR/docker-compose")
+    local COMPOSE_BIN="$DOWNLOAD_GITHUB/releases/download/$TARGET_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)"
+    local RESPONSE=$(curl -L "$COMPOSE_BIN" --write-out %{http_code} -o "$WORKING_DIR/docker-compose")
     if [ "$RESPONSE" != 200 ] ; then 
         terminate "Binary could not be downloaded"
     fi
@@ -300,9 +300,9 @@ execute_download_install_compose() {
 # Initialize Docker Swarm
 execute_docker_swarm() {
     print_status "Initializing Docker Swarm"
-    SWARM="$(docker info | grep -c 'Swarm: active')"
+    local SWARM="$(docker info | grep -c 'Swarm: active')"
     if [ ! "$SWARM" == '1' ] ; then
-        PUBLIC_IP=$"(curl https://ipinfo.io/ip)"
+        local PUBLIC_IP=$"(curl https://ipinfo.io/ip)"
         docker swarm init --advertise-addr "$PUBLIC_IP" --listen-addr "$PUBLIC_IP"
     else
         echo "Skipped, Docker Swarm already active"
