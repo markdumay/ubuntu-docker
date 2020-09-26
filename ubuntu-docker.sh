@@ -20,8 +20,9 @@ NC='\033[0m' # No Color
 BOLD='\033[1m' #Bold color
 SUPPORTED_VERSION=focal
 ADMIN_USER=admin
-DOWNLOAD_GITHUB=https://github.com/docker/compose
+DOWNLOAD_COMPOSE=https://github.com/docker/compose
 GITHUB_RELEASES=/docker/compose/releases/tag
+GITHUB_API_COMPOSE=https://api.github.com/repos/docker/compose/releases/latest
 PATH_DOCKER_BIN=/usr/local/bin
 PATH_DOCKER_DATA=/var/lib/docker
 SSH_IP_ALLOW_FILENAME=/usr/local/sbin/ssh_ip_allow.sh
@@ -94,11 +95,8 @@ init_env_variables() {
 
 # Detects available versions for Docker Compose
 detect_available_versions() {
-    local COMPOSE_TAGS=$(curl -s "$DOWNLOAD_GITHUB/tags" | egrep "a href=\"$GITHUB_RELEASES/[0-9]+.[0-9]+.[0-9]+\"")
-    local LATEST_COMPOSE_VERSION=$(echo "$COMPOSE_TAGS" | head -1 | cut -c 45- | sed "s/\">//g")
-    TARGET_COMPOSE_VERSION="$LATEST_COMPOSE_VERSION"
-
     # Test Docker Compose is available for download, exit otherwise
+    TARGET_COMPOSE_VERSION=$(curl -s "$GITHUB_API_COMPOSE" | grep "tag_name" | egrep -o "[0-9]+.[0-9]+.[0-9]+")
     if [ -z "$TARGET_COMPOSE_VERSION" ] ; then
         terminate "Could not find Docker Compose binaries for downloading"
     fi
