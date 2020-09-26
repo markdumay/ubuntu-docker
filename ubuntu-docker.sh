@@ -23,6 +23,7 @@ ADMIN_USER=admin
 DOWNLOAD_GITHUB=https://github.com/docker/compose
 GITHUB_RELEASES=/docker/compose/releases/tag
 PATH_DOCKER_BIN=/usr/local/bin
+PATH_DOCKER_DATA=/var/lib/docker
 SSH_IP_ALLOW_FILENAME=/usr/local/sbin/ssh_ip_allow.sh
 CRON_JOB="*/5 * * * * /bin/bash $SSH_IP_ALLOW_FILENAME"
 
@@ -205,6 +206,31 @@ execute_enable_swap_limit() {
     else   
         echo "Skipped, swap limiting already enabled"
     fi
+}
+
+# Create Docker mount point
+execute_create_docker_mount() {
+    print_status "Create Docker mount point"
+
+    if [ ! -z "$PARTITION"  ] ; then
+        if [ ! -d "$PATH_DOCKER_DATA" ] ; then
+            # identify UUID and TYPE for partition
+            local UUID=$(blkid "$PARTITION" | grep -oP 'UUID=\K.*' | xargs | awk '{print $1}')
+            local TYPE=$(blkid "$PARTITION" | grep -oP 'TYPE=\K.*' | xargs | awk '{print $1}')
+
+            # ensure the partition is mounted at boot
+            cp /etc/fstab /etc/fstab.$(date +%Y-%m-%d)
+            echo "UUID=$UUID $PATH_DOCKER_DATA           $TYPE    defaults        0       2" >> /etc/fstab
+
+            # create and mount the Docker data folder to the partition
+            mkdir -p "$PATH_DOCKER_DATA"
+            mount -a
+        else
+            echo "Skipped, Docker directory already exists"
+        fi
+    else
+        echo "Skipped, Docker partition not specified"
+    fi   
 }
 
 # Configure and enable firewall
@@ -393,7 +419,7 @@ done
 # Execute workflows
 case "$COMMAND" in
     init )
-        TOTAL_STEPS=8
+        TOTAL_STEPS=9
         validate_current_version
         init_env_variables
         execute_create_admin_user
@@ -406,10 +432,11 @@ case "$COMMAND" in
         execute_install_firewall
         ;;
     install )
-        TOTAL_STEPS=9
+        TOTAL_STEPS=10
         validate_current_version
         detect_available_versions
         init_env_variables
+        execute_create_docker_mount
         execute_install_docker
         execute_add_admin
         execute_configure_docker_daemon
