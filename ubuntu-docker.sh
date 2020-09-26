@@ -107,6 +107,13 @@ detect_available_versions() {
 # Workflow Functions
 #======================================================================================================================
 
+# Installs required packages
+execute_install_packages() {
+    local PACKAGES="snapd fail2ban logrotate auditd notary"
+    print_status "Install packages: $PACKAGES"
+    apt-get install -y "$PACKAGES" > /dev/null 2>&1
+}
+
 # Create a non-root user with sudo privileges
 execute_create_admin_user() {
     print_status "Create a non-root user with sudo privileges"
@@ -160,13 +167,6 @@ execute_make_boot_read_only() {
     fi
 }
 
-# Install Fail2ban
-execute_install_fail2ban() {
-    print_status "Install Fail2ban"
-
-    apt-get install -y fail2ban > /dev/null 2>&1
-}
-
 # Install Canonical Livepatch
 execute_install_livepatch() {
     print_status "Install Canonical Livepatch"
@@ -179,8 +179,7 @@ execute_install_livepatch() {
             # reset existing machine id
             rm /etc/machine-id /var/lib/dbus/machine-id > /dev/null 2>&1 ; dbus-uuidgen --ensure=/etc/machine-id
 
-            # install snap and livepatch
-            apt-get install -y snapd > /dev/null 2>&1
+            # install livepatch with snap
             snap install canonical-livepatch
             canonical-livepatch enable "$CANONICAL_TOKEN"
         else
@@ -258,8 +257,7 @@ execute_install_firewall() {
         # execute cron job immediately to only allow ssh from specified IP address
         /bin/bash "$SSH_IP_ALLOW_FILENAME"
 
-        # install log rotate
-        apt-get install -y logrotate > /dev/null 2>&1
+        # configure log rotate
         cp ssh_allowlog /etc/logrotate.d/ssh_allowlog
         chmod 644 /etc/logrotate.d/ssh_allowlog && chown root:root /etc/logrotate.d/ssh_allowlog
     else
@@ -298,7 +296,6 @@ execute_configure_docker_daemon() {
 # Enable auditing for Docker daemon and directories
 execute_enable_docker_audit() {
     print_status "Enable auditing for Docker daemon and directories"
-    apt-get -y install auditd -qq
 
     local AUDIT=$(cat /etc/audit/rules.d/audit.rules | grep '/usr/bin/docker')
     if [ -z "$AUDIT" ] ; then
@@ -420,11 +417,11 @@ case "$COMMAND" in
         TOTAL_STEPS=9
         validate_current_version
         init_env_variables
+        execute_install_packages
         execute_create_admin_user
         execute_disable_remote_root
         execute_secure_memory
         execute_make_boot_read_only
-        execute_install_fail2ban
         execute_install_livepatch
         execute_enable_swap_limit
         execute_install_firewall
