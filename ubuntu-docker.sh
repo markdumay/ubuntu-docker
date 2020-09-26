@@ -323,7 +323,7 @@ execute_docker_environment() {
 # Download and install Docker Compose
 execute_download_install_compose() {
     print_status "Downloading and installing Docker Compose ($TARGET_COMPOSE_VERSION)"
-    local COMPOSE_BIN="$DOWNLOAD_GITHUB/releases/download/$TARGET_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)"
+    local COMPOSE_BIN="$DOWNLOAD_COMPOSE/releases/download/$TARGET_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)"
     local RESPONSE=$(curl -L "$COMPOSE_BIN" --write-out %{http_code} -o "$WORKING_DIR/docker-compose")
     if [ "$RESPONSE" != 200 ] ; then 
         terminate "Binary could not be downloaded"
