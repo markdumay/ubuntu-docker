@@ -1,0 +1,107 @@
+---
+# Downloads the latest stable Lynis release from the public GitHub repository and runs a default system audit. The
+# Lynis files are stored in the user's home folder (e.g. '/home/user/lynis') to comply with the potential policy not to
+# run executables from within the /tmp folder. The key score and suggestions are displayed as debug messages. The audit
+# log is stored locally.
+- name: Perform a system audit using Lynis
+  hosts: prod
+  become: yes
+  vars:
+    audit_log: '/var/log/lynis.log'
+    release_url: 'https://api.github.com/repos/CISOfy/Lynis/releases/latest'
+    work_dir: "/home/{{ ansible_user }}/lynis"
+    local_dir: '/tmp/ansible'
+  tasks:
+    - name: Identify latest available Lynis release
+      uri:
+        url: "{{ release_url }}"
+        return_content: true
+      register: json_reponse
+
+    - name: Remove old working directory
+      file:
+        path: "{{ work_dir }}"
+        state: absent
+
+    - name: Create working directory
+      file:
+        path: "{{ work_dir }}"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+        state: directory
+
+    # Note: ignores the top-level directory within the archive
+    - name: Download and unarchive targeted Lynis release
+      unarchive:
+        src: "{{ json_reponse.json.tarball_url }}"
+        dest: "{{ work_dir }}"
+        remote_src: yes
+        extra_opts:
+        - --strip
+        - "1"
+
+    - name: Purge Lynis log file
+      file:
+        path: "{{ audit_log }}"
+        state: absent
+
+    - name: Run a Lynis audit
+      # TODO: temp
+      command: "{{ work_dir }}/lynis audit system --tests FIRE-4590,FIRE-4513"
+      args:
+        chdir: "{{ work_dir }}"
+        creates: "{{ audit_log }}"
+      register: audit
+
+    - name: Retrieve Lynis audit log
+      fetch:
+        src: "{{ audit_log }}"
+        dest: "{{ local_dir }}"
+
+    - name: Retrieve Lynis audit score
+      register: score
+      shell: |
+        set -o pipefail
+        grep 'Hardening index' {{ audit_log }} | awk -F'[' '{print $2}' | sed 's/]//g'
+      args:
+        executable: /bin/bash
+      when: audit is changed
+
+    - name: Retrieve tests performed
+      register: tests
+      shell: |
+        set -o pipefail
+        grep 'Tests performed:' {{ audit_log }} | awk '{print $5}'
+      args:
+        executable: /bin/bash
+      when: audit is changed
+
+    - name: Retrieve total tests
+      register: total
+      shell: |
+        set -o pipefail
+        grep 'Total tests:' {{ audit_log }} | awk '{print $5}'
+      args:
+        executable: /bin/bash
+      when: audit is changed
+
+    - name: Retrieve suggestions
+      register: suggestions
+      shell: |
+        set -o pipefail
+        grep 'Suggestion:' {{ audit_log }} | cut -c 21-
+      args:
+        executable: /bin/bash
+      when: audit is changed
+
+    - name: "List suggestions"
+      debug:
+        var: suggestions.stdout_lines
+
+    - name: "Print score"
+      debug:
+        msg: "Hardening index: {{ score.stdout }}(for {{ tests.stdout }} out of {{ total.stdout }} tests)"
+
+    - debug:
+        msg: "Local copy of audit log stored in '{{ local_dir }}'"
