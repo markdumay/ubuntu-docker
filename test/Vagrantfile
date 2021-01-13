@@ -86,7 +86,7 @@ Vagrant.configure('2') do |config|
 
     # Initiate SCSI storage controller and add a disk image
     config.vm.provider 'virtualbox' do |disk|
-        if not File.exists?(disk_path)
+        if ! File.exists?(disk_path)
             disk.customize ['createhd', '--filename', disk_path, '--variant', 'Standard', '--size', disk_size]
         end
         disk.customize ['storageattach', :id, '--storagectl', 'SCSI', '--port', 2, '--device', 0, '--type', 'hdd', 
