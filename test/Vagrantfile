@@ -118,15 +118,28 @@ Vagrant.configure('2') do |config|
                 abort
             end
 
-            # If needed, add sudo user with password and SSH public key
+            # If needed, configure boot password and add sudo user with password/SSH public key
             vm.vm.provision 'shell', inline: <<-SCRIPT
                 set +o history # exclude commands from bash history to prevent password leakage
                 if ! id -u "#{admin_user}" > /dev/null 2>&1 ; then
-                    useradd -d /home/"#{admin_user}" -s /bin/bash "#{admin_user}"
+                    # Add admin user
+                    useradd -g "#{admin_user}" "#{admin_user}" -d /home/"#{admin_user}" -s /bin/bash 
                     echo "#{admin_user}:#{admin_password}" | chpasswd
                     usermod -aG sudo "#{admin_user}"  # assign sudo rights
+
+                    # Add SSH key
                     mkdir -p "/home/#{admin_user}/.ssh" 
                     cp -r /vagrant/public-ssh/id_rsa.pub "/home/#{admin_user}/.ssh/authorized_keys" # deploy ssh key
+                    chown -R "#{admin_user}:#{admin_user}" "/home/#{admin_user}"
+                    chmod 700 "/home/#{admin_user}/.ssh"
+                    chmod 600 "/home/#{admin_user}/.ssh/authorized_keys"
+
+                    # Set boot password (equal to admin password)
+                    hash=$(echo -e "#{admin_password}\n#{admin_password}" | LC_ALL=C /usr/bin/grub-mkpasswd-pbkdf2)
+                    {
+                        echo "set superusers=\"#{admin_user}\""
+                        echo "password_pbkdf2 #{admin_user} ${hash}"
+                    } >> /etc/grub.d/40_custom
                 fi
             SCRIPT
         end
