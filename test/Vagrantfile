@@ -95,11 +95,11 @@ Vagrant.configure('2') do |config|
 
     # Configure base image, hostname, network, partitions, and sudo user of VM
     config.vm.define name do |vm|
-        vm.ssh.extra_args = ['-o', 'ConnectTimeout=600']
-        vm.ssh.insert_key = true
-        vm.vm.boot_timeout = 600
         vm.vm.box = box
         vm.vm.hostname = name
+        vm.vm.boot_timeout = 300
+        vm.ssh.extra_args = ['-o', 'ConnectTimeout=300']
+        vm.ssh.insert_key = true
         vm.vm.network 'private_network', ip: ip
         vm.vm.provision 'file', source: ssh_path, destination: '/vagrant/public-ssh/id_rsa.pub'
         
