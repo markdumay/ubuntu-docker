@@ -51,8 +51,9 @@
 # box               'ubuntu/focal64'                    Base image for the VM
 # memory            2048                                Available RAM for the VM in MiB
 # cpus              2                                   Number of CPU cores for the VM
-# disk_path         '/tmp/focal_disk01.vdi'             Host location of the virtual disk
-# disk_size         5 * 1024                            Virtual disk size in MiB
+# disk_path         '/opt/vm/focal_disk01.vdi'          Host location of the virtual disk
+# disk_name         'sdc'                               Device name of the virtual disk
+# disk_size         5                                   Virtual disk size in GiB, first 2GiB is reserved for system
 # ip                '10.0.0.10'                         IP address of the VM
 # ssh_path          '~/.ssh/id_rsa.pub'                 Public SSH key to provision for admin user
 # admin_user        'ansible'                           Name of admin user to add to VM
@@ -67,8 +68,9 @@ Vagrant.configure('2') do |config|
     box = 'ubuntu/focal64'                              # Base image for the VM
     memory = 2048                                       # Available RAM for the VM in MiB
     cpus = 2                                            # Number of CPU cores for the VM
-    disk_path = '/tmp/focal_disk01.vdi'                 # Host location of the virtual disk
-    disk_size = 5 * 1024                                # Virtual disk size in MiB
+    disk_path = '/opt/vm/focal_disk01.vdi'              # Host location of the virtual disk
+    disk_name = 'sdc'                                   # Device name of the virtual disk
+    disk_size = 5                                       # Virtual disk size in GiB, first 2GiB is reserved for system
     ip = '10.0.0.10'                                    # IP address of the VM
     ssh_path = '~/.ssh/id_rsa.pub'                      # Public SSH key to provision for admin user
     admin_user = 'ansible'                              # Name of admin user to add to VM
@@ -87,7 +89,7 @@ Vagrant.configure('2') do |config|
     # Initiate SCSI storage controller and add a disk image
     config.vm.provider 'virtualbox' do |disk|
         if ! File.exists?(disk_path)
-            disk.customize ['createhd', '--filename', disk_path, '--variant', 'Standard', '--size', disk_size]
+            disk.customize ['createhd', '--filename', disk_path, '--variant', 'Standard', '--size', disk_size * 1024]
         end
         disk.customize ['storageattach', :id, '--storagectl', 'SCSI', '--port', 2, '--device', 0, '--type', 'hdd', 
             '--medium', disk_path]
@@ -107,7 +109,7 @@ Vagrant.configure('2') do |config|
         if ARGV[0] == 'up'
             # If needed, create partitions and mount points
             if ! File.exist?(disk_path)
-                vm.vm.provision 'shell', path: 'createPartitions.sh'
+                vm.vm.provision 'shell', path: 'createPartitions.sh', args: ["#{disk_name}", "#{disk_size}G"]
             end
 
             # Read password for admin_user from ansible vault file, asking user for vault password
