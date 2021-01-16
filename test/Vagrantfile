@@ -57,7 +57,8 @@
 # ip                '10.0.0.10'                         IP address of the VM
 # ssh_path          '~/.ssh/id_rsa.pub'                 Public SSH key to provision for admin user
 # admin_user        'ansible'                           Name of admin user to add to VM
-# ansible_vault     '~/.ansible/blog_credentials.yml'   Ansible vault file that contains the admin password
+# ansible_vault     '~/.ansible/vault.yml'              Ansible vault file that contains the admin password
+# grub_password     'false'                             Protects boot process with admin credentials if 'true'
 #
 # This Vagrant configuration is based on an example developed by Thomas Sjögren (konstruktoid), whom also authored an 
 # Ansible playbook for the hardening of several Linux distributions, including Ubuntu 20.04 LTS. He is also the editor
@@ -73,8 +74,9 @@ Vagrant.configure('2') do |config|
     disk_size = 5                                       # Virtual disk size in GiB, first 2GiB is reserved for system
     ip = '10.0.0.10'                                    # IP address of the VM
     ssh_path = '~/.ssh/id_rsa.pub'                      # Public SSH key to provision for admin user
-    admin_user = 'ansible'                              # Name of admin user to add to VM
-    ansible_vault = '~/.ansible/blog_credentials.yml'   # Ansible vault file that contains the admin password
+    admin_user = 'admin'                                # Name of admin user to add to VM
+    ansible_vault = '~/.ansible/vault.yml'              # Ansible vault file that contains the admin password
+    grub_password = 'false'                             # Protects boot process with admin credentials if 'true'
 
     # Provision CPU, memory, NIC, and UART
     config.vbguest.installer_options = { allow_kernel_upgrade: true }
@@ -139,11 +141,18 @@ Vagrant.configure('2') do |config|
                     chmod 600 "/home/#{admin_user}/.ssh/authorized_keys"
 
                     # Set boot password (equal to admin password)
-                    hash=$(echo -e "#{admin_password}\n#{admin_password}" | LC_ALL=C /usr/bin/grub-mkpasswd-pbkdf2)
+                    if [ "#{grub_password}" == 'true' ]; then
+                        echo "Setting boot password"
+                        hash=$(echo -e "#{admin_password}\n#{admin_password}" | \ 
+                            LC_ALL=C /usr/bin/grub-mkpasswd-pbkdf2 | grep -Po 'grub\.pbkdf2\.sha512\..*')
                     {
                         echo "set superusers=\"#{admin_user}\""
                         echo "password_pbkdf2 #{admin_user} ${hash}"
                     } >> /etc/grub.d/40_custom
+                        update-grub
+                    else
+                        echo "Skipping boot password"
+                    fi
                 fi
             SCRIPT
         end
