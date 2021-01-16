@@ -115,9 +115,9 @@ Vagrant.configure('2') do |config|
             end
 
             # Read password for admin_user from ansible vault file, asking user for vault password
-            cmd = `ansible localhost -m debug -a var="#{admin_user}.password" -e "@#{ansible_vault}" --ask-vault-pass 2>/dev/null`
-            admin_password = `echo "#{cmd}" | grep "#{admin_user}.password" | awk -F': ' '{printf $2}'`
-            if admin_password.to_s.empty?
+            cmd = `ansible localhost -m debug -a msg="{{ #{admin_user}.password }}" -e "@#{ansible_vault}" --ask-vault-pass 2>/dev/null`
+            admin_password = `echo "#{cmd}" | awk '/localhost [|] SUCCESS/{getline; print}' | awk -F': ' '{printf $2}'`
+            if admin_password.to_s.strip.length == 0
                 puts 'ERROR: Cannot decrypt admin password'
                 abort
             end
