@@ -1,0 +1,61 @@
+---
+# Copyright © 2021 Mark Dumay. All rights reserved.
+# Use of this source code is governed by The MIT License (MIT) that can be found in the LICENSE file.
+- hosts: test
+  user: admin
+  gather_facts: no  # gathered by tasks/sshd.yml instead
+  roles:
+    - role: holms.fqdn
+      tags: fqdn
+      become: yes
+    - role: konstruktoid.hardening
+
+  vars:
+    sshd_admin_net:
+      - 10.0.0.0/24 # private IP subnet for Vagrant VM
+    sshd_client_alive_count_max: 2
+    sshd_port: 2222
+    sshd_max_sessions: 2
+    ufw_outgoing_traffic:
+      - 43                    # WHOIS
+      - 53                    # DNS
+      - 80                    # HTTP
+      - 123                   # NTP
+      - 443                   # HTTPS
+      - 853                   # DNS over TLS
+      - "{{ sshd_port }}"     # SSH (remapped)
+
+  pre_tasks:
+    - name: Configure SSH port and gather facts
+      import_tasks: tasks/sshd.yml
+      tags:
+        - always
+
+    - name: Whitelist public IP address of local machine for SSH
+      import_tasks: tasks/ip.yml
+      tags:
+        - ufw
+        - ssh
+        - ip
+
+  tasks:
+    - name: Validate timezone
+      include_tasks: tasks/timezone.yml
+      tags:
+        - timezone
+  
+    - name: Validate authorized users
+      include_tasks: tasks/users.yml
+      tags:
+        - users
+
+  post_tasks:
+    - name: Configure DDNS access for SSH access via ufw
+      include_tasks: tasks/ufw.yml
+      tags:
+        - ufw
+        - ssh
+
+  handlers:
+    - import_tasks: handlers/main.yml
+...
