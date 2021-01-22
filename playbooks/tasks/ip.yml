@@ -1,0 +1,41 @@
+---
+# Copyright © 2021 Mark Dumay. All rights reserved.
+# Use of this source code is governed by The MIT License (MIT) that can be found in the LICENSE file.
+# TODO: check IP failure
+- name: Include default variables
+  include_vars:
+    dir: ../defaults
+    files_matching: ip.yml
+  tags:
+    - ufw
+    - ssh
+    - ip
+
+- name: Get public IP of current machine
+  register: public_ip
+  shell: dig +short myip.opendns.com @resolver1.opendns.com
+  when: ip_enable_public_address
+  tags:
+    - ufw
+    - ssh
+    - ip
+
+- name: Add public IP of current machine
+  set_fact:
+    sshd_admin_net: "{{ sshd_admin_net + public_ip.stdout_lines }}"
+  when: ip_enable_public_address
+  tags:
+    - ufw
+    - ssh
+    - ip
+
+- name: Define IP addresses for remote SSH access
+  debug:
+    var: sshd_admin_net
+    verbosity: 0
+  when: ip_enable_public_address
+  tags:
+    - ufw
+    - ssh
+    - ip
+...

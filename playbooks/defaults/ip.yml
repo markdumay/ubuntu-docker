@@ -1,0 +1,3 @@
+---
+ip_enable_public_address: yes # include host's public IP in sshd_admin_net if set
+...
