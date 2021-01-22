@@ -1,0 +1,17 @@
+---
+# Copyright © 2021 Mark Dumay. All rights reserved.
+# Use of this source code is governed by The MIT License (MIT) that can be found in the LICENSE file.
+- name: Check current timezone
+  shell: cat /etc/timezone
+  register: current_zone
+  when: timezone is defined
+  tags:
+    - timezone
+
+- name: Update timezone with defined value
+  become: yes
+  command: "timedatectl set-timezone {{ timezone }}"
+  when: timezone is defined and current_zone.stdout != timezone
+  tags:
+    - timezone
+...
