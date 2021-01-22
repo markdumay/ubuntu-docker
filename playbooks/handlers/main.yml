@@ -1,0 +1,11 @@
+---
+# Copyright © 2021 Mark Dumay. All rights reserved.
+# Use of this source code is governed by The MIT License (MIT) that can be found in the LICENSE file.
+- name: reload ufw
+  become: yes
+  command: /usr/sbin/ufw reload
+
+- name: restart sshd
+  become: yes
+  command: systemctl restart sshd
+...
