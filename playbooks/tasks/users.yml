@@ -1,0 +1,48 @@
+---
+# Copyright © 2021 Mark Dumay. All rights reserved.
+# Use of this source code is governed by The MIT License (MIT) that can be found in the LICENSE file.
+- name: Include default variables
+  include_vars:
+    dir: ../defaults
+    files_matching: users.yml
+  tags:
+    - users
+
+- name: Validate host variable 'users_enabled'
+  fail:
+    msg: "Cannot find host variable 'users_enabled'"
+  when: users_remove_unauthorized and users_enabled is undefined
+  tags:
+    - users
+
+- name: Retrieve current users with login
+  become: yes
+  register: users_current
+  shell: |
+    set -o pipefail
+    getent passwd | grep -v '/usr/sbin/nologin\|/bin/false\|/bin/sync' | cut -d: -f1 | sort -u
+  args:
+    executable: /bin/bash
+  when: users_remove_unauthorized
+  tags:
+    - users
+
+- name: Determine unauthorized users
+  set_fact:
+    users_unauthorized: "{{ users_current.stdout_lines | difference(users_enabled) }}"
+  when: users_remove_unauthorized
+  tags:
+    - users
+
+- name: Remove unauthorized users
+  become: yes
+  user:
+    name: "{{ item }}"
+    state: absent
+    remove: yes
+  with_items:
+    - "{{ users_unauthorized }}"
+  when: users_remove_unauthorized
+  tags:
+    - users
+...
