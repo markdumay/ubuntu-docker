@@ -1,0 +1,92 @@
+---
+# Copyright © 2021 Mark Dumay. All rights reserved.
+# Use of this source code is governed by The MIT License (MIT) that can be found in the LICENSE file.
+# TODO: standardize ansible quotes/no quotes
+- name: Include default variables
+  include_vars:
+    dir: ../defaults
+    files_matching: ufw.yml
+  tags:
+    - ufw
+    - ssh
+
+- name: Enable outbound ping
+  become: yes
+  lineinfile:
+    dest: /etc/ufw/before.rules
+    mode: 0640
+    state: present
+    insertbefore: "^# allow dhcp client to work"
+    line: "{{ item.line }}"
+  with_items:
+    - { line: '# allow outbound icmp' }
+    - { line: '-A ufw-before-output -p icmp -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT' }
+    - { line: '-A ufw-before-output -p icmp -m state --state ESTABLISHED,RELATED -j ACCEPT' }
+  when: ufw_allow_outbound_icmp
+  notify:
+    - reload ufw
+  tags:
+    - ufw
+
+- name: Validate host variable 'ufw_ddns_domain'
+  fail:
+    msg: "Cannot find host variable 'ufw_ddns_domain'"
+  when: ufw_ddns_enabled and ufw_ddns_domain is undefined
+  tags:
+    - ufw
+    - ssh
+
+- name: Install script to enable DDNS support for ufw
+  become: yes
+  ansible.builtin.copy:
+    src: ufw_ssh_ddns.sh
+    dest: /usr/local/sbin/ufw_ssh_ddns.sh
+    owner: root
+    group: root
+    mode: 0740
+  when: ufw_ddns_enabled
+  tags:
+    - ufw
+    - ssh
+
+- name: Configure logrotate for DDNS support script
+  become: yes
+  ansible.builtin.copy:
+    src: ufw_ssh_ddns
+    dest: /etc/logrotate.d/ufw_ssh_ddns
+    owner: root
+    group: root
+    mode: 0640
+  when: ufw_ddns_enabled
+  tags:
+    - ufw
+    - ssh
+
+- name: Configure DDNS cron job to run every 5 minutes
+  become: yes
+  ansible.builtin.cron:
+    name: "Update ufw with IP address associated with DDNS"
+    minute: "*/5"
+    job: "/usr/local/sbin/ufw_ssh_ddns.sh --ddns {{ ufw_ddns_domain }} --port {{ sshd_port }}"
+  when: ufw_ddns_enabled
+  tags:
+    - ufw
+    - ssh
+
+- name: Run DDNS cron job for first time
+  become: yes
+  command: "/usr/local/sbin/ufw_ssh_ddns.sh --ddns {{ ufw_ddns_domain }} --port {{ sshd_port }}"
+  register: ddns_cron_result
+  when: ufw_ddns_enabled
+  tags:
+    - ufw
+    - ssh
+
+- name: Display DDNS cron job output
+  debug:
+    var: ddns_cron_result.stdout_lines
+  when: ufw_ddns_enabled
+  tags:
+    - ufw
+    - ssh
+...

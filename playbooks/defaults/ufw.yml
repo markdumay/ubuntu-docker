@@ -1,0 +1,4 @@
+---
+ufw_ddns_enabled: yes
+ufw_allow_outbound_icmp: yes
+...

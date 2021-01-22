@@ -1,0 +1,6 @@
+/var/log/ufw_ssh_ddns.log
+{
+    daily
+    maxsize 5M
+    rotate 4
+}
