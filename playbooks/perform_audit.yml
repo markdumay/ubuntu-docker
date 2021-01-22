@@ -1,16 +1,20 @@
 ---
+# Copyright © 2021 Mark Dumay. All rights reserved.
+# Use of this source code is governed by The MIT License (MIT) that can be found in the LICENSE file.
+#
 # Downloads the latest stable Lynis release from the public GitHub repository and runs a default system audit. The
 # Lynis files are stored in the user's home folder (e.g. '/home/user/lynis') to comply with the potential policy not to
 # run executables from within the /tmp folder. The key score and suggestions are displayed as debug messages. The audit
 # log is stored locally.
 - name: Perform a system audit using Lynis
-  hosts: prod
+  hosts: test
   become: yes
   vars:
     audit_log: '/var/log/lynis.log'
     release_url: 'https://api.github.com/repos/CISOfy/Lynis/releases/latest'
     work_dir: "/home/{{ ansible_user }}/lynis"
     local_dir: '/tmp/ansible'
+
   tasks:
     - name: Identify latest available Lynis release
       uri:
@@ -38,8 +42,8 @@
         dest: "{{ work_dir }}"
         remote_src: yes
         extra_opts:
-        - --strip
-        - "1"
+          - --strip
+          - "1"
 
     - name: Purge Lynis log file
       file:
@@ -47,8 +51,7 @@
         state: absent
 
     - name: Run a Lynis audit
-      # TODO: temp
-      command: "{{ work_dir }}/lynis audit system --tests FIRE-4590,FIRE-4513"
+      command: "{{ work_dir }}/lynis audit system"
       args:
         chdir: "{{ work_dir }}"
         creates: "{{ audit_log }}"
@@ -90,16 +93,17 @@
       register: suggestions
       shell: |
         set -o pipefail
-        grep 'Suggestion:' {{ audit_log }} | cut -c 21-
+        export TRIM=21; grep 'Suggestion:' {{ audit_log }} || export TRIM=1; echo "N/A" | cut -c "${TRIM}-"
+        unset TRIM
       args:
         executable: /bin/bash
       when: audit is changed
 
-    - name: "List suggestions"
+    - name: List suggestions
       debug:
         var: suggestions.stdout_lines
 
-    - name: "Print score"
+    - name: Print score
       debug:
         msg: "Hardening index: {{ score.stdout }}(for {{ tests.stdout }} out of {{ total.stdout }} tests)"
 
