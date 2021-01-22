@@ -3,3 +3,9 @@
 
 # Local filesystem files
 .DS_Store
+
+# Vagrant environment files
+.vagrant
+
+# Keys used for Vagrant testing
+public-ssh
