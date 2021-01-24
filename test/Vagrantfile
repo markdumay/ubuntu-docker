@@ -21,7 +21,7 @@
 # the host's current user by default. It also assigns a password which is encrypted in an Ansible Vault. 
 #
 # To satisfy several security recommendations, a virtual SCSI disk (/dev/sdc) of 5GiB (default size) is embedded in the
-# VM. This disk consists of four partitions, that act as mount point for the following directories:
+# VM. This disk consists of four partitions that act as mount point for the following directories:
 # PARTITION SIZE        MOUNT POINT
 # --------- ----        -----------
 # /dev/sdc1   500MiB    /home
@@ -46,7 +46,7 @@
 #
 # The following variables are available to simplify adjustment of the VM's configuration. You can specify them in
 # 'config.yml'.
-# VARIABLE          DEFAULT VALUE                       DESCRIPTION
+# VARIABLE          EXAMPLE VALUE                       DESCRIPTION
 # --------          -------------                       -----------
 # name              'focal'                             Name of the VM
 # box               'ubuntu/focal64'                    Base image for the VM
