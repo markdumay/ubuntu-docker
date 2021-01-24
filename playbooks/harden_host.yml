@@ -11,6 +11,7 @@
     - role: konstruktoid.hardening
 
   vars:
+    ansible_become_pass: "{{ users_enabled.admin.password }}"
     sshd_admin_net:
       - 10.0.0.0/24 # private IP subnet for Vagrant VM
     sshd_client_alive_count_max: 2
