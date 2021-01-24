@@ -2,8 +2,8 @@
 # Title         : Vagrantfile
 # Description   : Create a VM with Ubuntu 20.04 LTS for Testing of Server Hardening and Docker Installation
 # Author        : Mark Dumay
-# Date          : January 16th, 2021
-# Version       : 0.5.0
+# Date          : January 24th, 2021
+# Version       : 0.6.0
 # Usage         : vagrant up
 # Repository    : https://github.com/markdumay/ubuntu-docker.git
 # License       : MIT - https://github.com/markdumay/ubuntu-docker/blob/master/LICENSE
@@ -44,7 +44,8 @@
 # - If needed, update the ECDSA key fingerprint of the VM in '~/.ssh/known_hosts'
 # - Leave the VM's shell with `exit`
 #
-# The following variables are available to simplify adjustment of the VM's configuration.
+# The following variables are available to simplify adjustment of the VM's configuration. You can specify them in
+# 'config.yml'.
 # VARIABLE          DEFAULT VALUE                       DESCRIPTION
 # --------          -------------                       -----------
 # name              'focal'                             Name of the VM
@@ -53,36 +54,29 @@
 # cpus              2                                   Number of CPU cores for the VM
 # disk_path         '/opt/vm/focal_disk01.vdi'          Host location of the virtual disk
 # disk_name         'sdc'                               Device name of the virtual disk
-# disk_size         5                                   Virtual disk size in GiB, first 2GiB is reserved for system
+# disk_size         5                                   Virtual disk size in GiB
 # ip                '10.0.0.10'                         IP address of the VM
 # ssh_path          '~/.ssh/id_rsa.pub'                 Public SSH key to provision for admin user
 # admin_user        'ansible'                           Name of admin user to add to VM
-# ansible_vault     '~/.ansible/vault.yml'              Ansible vault file that contains the admin password
-# grub_password     'false'                             Protects boot process with admin credentials if 'true'
+# ansible_vault     '/etc/ansible/[...]/vault.yml'      Ansible vault file with admin password
+# grub_password     'false'                             Protects boot with admin password if 'true'
 #
 # This Vagrant configuration is based on an example developed by Thomas Sjögren (konstruktoid), whom also authored an 
 # Ansible playbook for the hardening of several Linux distributions, including Ubuntu 20.04 LTS. He is also the editor
 # of the Docker Bench for Security.
 #======================================================================================================================
 Vagrant.configure('2') do |config|
-    name = 'focal'                                      # Name of the VM
-    box = 'ubuntu/focal64'                              # Base image for the VM
-    memory = 2048                                       # Available RAM for the VM in MiB
-    cpus = 2                                            # Number of CPU cores for the VM
-    disk_path = '/opt/vm/focal_disk01.vdi'              # Host location of the virtual disk
-    disk_name = 'sdc'                                   # Device name of the virtual disk
-    disk_size = 5                                       # Virtual disk size in GiB, first 2GiB is reserved for system
-    ip = '10.0.0.10'                                    # IP address of the VM
-    ssh_path = '~/.ssh/id_rsa.pub'                      # Public SSH key to provision for admin user
-    admin_user = 'admin'                                # Name of admin user to add to VM
-    ansible_vault = '~/.ansible/vault.yml'              # Ansible vault file that contains the admin password
-    grub_password = 'false'                             # Protects boot process with admin credentials if 'true'
+    # Include environment configuration from YAML file config.yml
+    require 'yaml'
+    env_config = YAML.load_file(File.join(File.dirname(__FILE__), 'config.yml'))
+    current_config = env_config['vagrant_config'][env_config['vagrant_config']['env']]
+    admin_user = current_config['admin_user'] # define variable as shortcut
 
     # Provision CPU, memory, NIC, and UART
     config.vbguest.installer_options = { allow_kernel_upgrade: true }
     config.vm.provider 'virtualbox' do |p|
-        p.cpus = cpus
-        p.memory = memory
+        p.cpus = current_config['cpus']
+        p.memory = current_config['memory']
         p.default_nic_type = 'Am79C973'
         p.customize ['modifyvm', :id, '--uart1', '0x3F8', '4']
         p.customize ['modifyvm', :id, '--uartmode1', 'file', File::NULL]
@@ -90,32 +84,37 @@ Vagrant.configure('2') do |config|
 
     # Initiate SCSI storage controller and add a disk image
     config.vm.provider 'virtualbox' do |disk|
-        if ! File.exists?(disk_path)
-            disk.customize ['createhd', '--filename', disk_path, '--variant', 'Standard', '--size', disk_size * 1024]
+        if ! File.exists?(current_config['disk_path'])
+            disk.customize ['createhd', '--filename', current_config['disk_path'], '--variant', 'Standard', \
+                '--size', current_config['disk_size'] * 1024]
         end
         disk.customize ['storageattach', :id, '--storagectl', 'SCSI', '--port', 2, '--device', 0, '--type', 'hdd', 
-            '--medium', disk_path]
+            '--medium', current_config['disk_path']]
     end
 
     # Configure base image, hostname, network, partitions, and sudo user of VM
-    config.vm.define name do |vm|
-        vm.vm.box = box
-        vm.vm.hostname = name
+    config.vm.define current_config['name'] do |vm|
+        vm.vm.box = current_config['box']
+        vm.vm.hostname = current_config['name']
         vm.vm.boot_timeout = 300
         vm.ssh.extra_args = ['-o', 'ConnectTimeout=300']
         vm.ssh.insert_key = true
-        vm.vm.network 'private_network', ip: ip
-        vm.vm.provision 'file', source: ssh_path, destination: '/vagrant/public-ssh/id_rsa.pub'
+        vm.vm.network 'private_network', ip: current_config['ip']
+        vm.vm.provision 'file', source: current_config['ssh_path'], destination: '/vagrant/public-ssh/id_rsa.pub'
         
         # Create partitions, mount points, and sudo user during creation of VM        
         if ARGV[0] == 'up'
             # If needed, create partitions and mount points
-            if ! File.exist?(disk_path)
-                vm.vm.provision 'shell', path: 'createPartitions.sh', args: ["#{disk_name}", "#{disk_size}G"]
+            if ! File.exist?(current_config['disk_path'])
+                vm.vm.provision \
+                    'shell', \
+                    path: 'createPartitions.sh', \
+                    args: ["#{current_config['disk_name']}", "#{current_config['disk_size']}G"]
             end
 
             # Read password for admin_user from ansible vault file, asking user for vault password
-            cmd = `ansible localhost -m debug -a msg="{{ #{admin_user}.password }}" -e "@#{ansible_vault}" --ask-vault-pass 2>/dev/null`
+            cmd = `ansible localhost -m debug -a msg="{{ users_enabled.#{admin_user}.password }}" \
+                -e "@#{current_config['ansible_vault']}" --ask-vault-pass 2>/dev/null`
             admin_password = `echo "#{cmd}" | awk '/localhost [|] SUCCESS/{getline; print}' | awk -F': ' '{printf $2}'`
             if admin_password.to_s.strip.length == 0
                 puts 'ERROR: Cannot decrypt admin password'
@@ -142,7 +141,7 @@ Vagrant.configure('2') do |config|
                     chmod 600 "/home/#{admin_user}/.ssh/authorized_keys"
 
                     # Set boot password (equal to admin password)
-                    if [ "#{grub_password}" == 'true' ]; then
+                    if [ "#{current_config['grub_password']}" == 'true' ]; then
                         echo "Setting boot password"
                         hash=$(echo -e "#{admin_password}\n#{admin_password}" | \ 
                             LC_ALL=C /usr/bin/grub-mkpasswd-pbkdf2 | grep -Po 'grub\.pbkdf2\.sha512\..*')

@@ -1,0 +1,17 @@
+---
+  vagrant_config:
+    env: 'test'
+    test:
+      name: 'hardening'                                                 # Name of the VM
+      box: 'ubuntu/focal64'                                             # Base image for the VM
+      memory: 2048                                                      # Available RAM for the VM in MiB
+      cpus: 2                                                           # Number of CPU cores for the VM
+      disk_path: '/opt/vm/hardening_disk01.vdi'                         # Host location of the virtual disk
+      disk_name: 'sdc'                                                  # Device name of the virtual disk
+      disk_size: 5                                                      # Virtual disk size in GiB
+      ip: '10.0.0.10'                                                   # IP address of the VM
+      ssh_path: '~/.ssh/id_rsa.pub'                                     # Public SSH key to provision for admin user
+      admin_user: 'admin'                                               # Name of admin user to add to VM
+      ansible_vault: '/etc/ansible/host_vars/hardening.local/vault.yml' # Ansible vault file with admin password
+      grub_password: 'false'                                            # Protects boot with admin password if 'true'
+...
