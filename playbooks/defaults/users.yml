@@ -1,3 +1,4 @@
 ---
 users_remove_unauthorized: true
+users_update_hash: true
 ...

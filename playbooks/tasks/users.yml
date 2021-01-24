@@ -8,10 +8,33 @@
   tags:
     - users
 
-- name: Validate host variable 'users_enabled'
+- name: Validate presence of variable 'users_enabled'
   fail:
-    msg: "Cannot find host variable 'users_enabled'"
-  when: users_remove_unauthorized and users_enabled is undefined
+    msg: "Cannot find variable 'users_enabled'"
+  when: (users_remove_unauthorized or users_update_hash) and users_enabled is undefined
+  tags:
+    - users
+
+- name: Find all users without bcrypt-encrypted password hash
+  become: yes
+  register: users_no_bcrypt
+  shell: |
+    set -o pipefail
+    grep -vE '*:\$2b\$*' /etc/shadow | cut -d: -f1
+  args:
+    executable: /bin/bash
+  when: users_update_hash
+  tags:
+    - users
+
+- name: Update password hash of enabled users if needed
+  become: yes
+  no_log: true
+  user:
+    name: "{{ item.key }}"
+    password: "{{ item.value.password | password_hash('bcrypt') }}"
+  loop: "{{ lookup('dict', users_enabled) }}"
+  when: users_update_hash and item.value.password is defined and item.key in users_no_bcrypt.stdout_lines
   tags:
     - users
 
