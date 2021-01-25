@@ -8,8 +8,10 @@
 # log is stored locally.
 - name: Perform a system audit using Lynis
   hosts: test
+  user: admin
   become: yes
   vars:
+    ansible_become_pass: "{{ users_enabled.admin.password }}"
     audit_log: '/var/log/lynis.log'
     release_url: 'https://api.github.com/repos/CISOfy/Lynis/releases/latest'
     work_dir: "/home/{{ ansible_user }}/lynis"
@@ -36,7 +38,7 @@
         state: directory
 
     # Note: ignores the top-level directory within the archive
-    - name: Download and unarchive targeted Lynis release
+    - name: Download and extract targeted Lynis release
       unarchive:
         src: "{{ json_reponse.json.tarball_url }}"
         dest: "{{ work_dir }}"
