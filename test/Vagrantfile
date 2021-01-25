@@ -1,23 +1,23 @@
-#======================================================================================================================
+#=======================================================================================================================
 # Title         : Vagrantfile
 # Description   : Create a VM with Ubuntu 20.04 LTS for Testing of Server Hardening and Docker Installation
 # Author        : Mark Dumay
-# Date          : January 24th, 2021
+# Date          : January 25th, 2021
 # Version       : 0.6.0
 # Usage         : vagrant up
 # Repository    : https://github.com/markdumay/ubuntu-docker.git
 # License       : MIT - https://github.com/markdumay/ubuntu-docker/blob/master/LICENSE
 # Credits       : Inspired by Hardening repository from Thomas Sjögren (https://github.com/konstruktoid/hardening/)
-# Comments      : Portions copyrighted by Thomas Sjögren (konstruktoid), with Apache License 2.0
-#======================================================================================================================
+# Comments      : Portions copyright Thomas Sjögren (konstruktoid), with Apache License 2.0
+#=======================================================================================================================
 
 
-#======================================================================================================================
+#=======================================================================================================================
 # This Vagrant configuration defines a virtual machine (VM) using VirtualBox as provider. The VM uses the official 
 # Ubuntu 20.04 LTS (Focal Fossa) build hosted on Vagrant Cloud. To improve performance and stability, Oracle VM 
 # VirtualBox Guest Additions are installed too. The resulting VM is intended to be used for testing of Ansible
 # playbooks to harden the host and to install the Docker Community Engine. As such, an additional admin user is
-# configured next to the default Vagrant user. The admin user, named 'ansible' by default, uses the public SSH key of
+# configured next to the default Vagrant user. The admin user, named 'admin' by default, uses the public SSH key of
 # the host's current user by default. It also assigns a password which is encrypted in an Ansible Vault. 
 #
 # To satisfy several security recommendations, a virtual SCSI disk (/dev/sdc) of 5GiB (default size) is embedded in the
@@ -34,8 +34,12 @@
 # - Vagrant, install from https://www.vagrantup.com/downloads
 # - Ansible, see https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html
 # - A public SSH key at '~/.ssh/id_rsa.pub', use 'ssh-keygen -t rsa' to generate one if needed
-# - An Ansible Vault file in YAML notation at '~/.ansible/blog_credentials.yml', for example:
-# ansible:
+# - An Ansible Vault file in YAML notation, for example:
+# users_enabled:
+#   root:
+#   admin:
+#     password: replace_me
+#   vagrant:
 #     password: replace_me
 #
 # Usage:
@@ -64,7 +68,7 @@
 # This Vagrant configuration is based on an example developed by Thomas Sjögren (konstruktoid), whom also authored an 
 # Ansible playbook for the hardening of several Linux distributions, including Ubuntu 20.04 LTS. He is also the editor
 # of the Docker Bench for Security.
-#======================================================================================================================
+#=======================================================================================================================
 Vagrant.configure('2') do |config|
     # Include environment configuration from YAML file config.yml
     require 'yaml'
