@@ -1,7 +1,6 @@
 ---
 # Copyright © 2021 Mark Dumay. All rights reserved.
 # Use of this source code is governed by The MIT License (MIT) that can be found in the LICENSE file.
-# TODO: check IP failure
 - name: Include default variables
   include_vars:
     dir: ../defaults
@@ -13,7 +12,7 @@
 
 - name: Get public IP of current machine
   register: public_ip
-  shell: dig +short myip.opendns.com @resolver1.opendns.com
+  shell: "dig +short myip.opendns.com @resolver1.opendns.com"
   when: ip_enable_public_address
   tags:
     - ufw

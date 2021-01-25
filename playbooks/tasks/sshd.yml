@@ -43,7 +43,7 @@
     ansible_ssh_port: "{{ sshd_port }}"
   when: configured_ssh is defined and
         configured_ssh.state is defined and
-        configured_ssh.state == "started"
+        configured_ssh.state == 'started'
   register: ssh_port_set
 
 # From localhost, check if we're able to reach {{ inventory_hostname }} on
@@ -57,7 +57,7 @@
     timeout: 10
   delegate_to: localhost
   ignore_errors: yes
-  when: configured_ssh is undefined or configured_ssh.state is undefined or configured_ssh.state != "started"
+  when: configured_ssh is undefined or configured_ssh.state is undefined or configured_ssh.state != 'started'
   register: default_ssh
 
 # If reachable on default SSH port, continue the following tasks with this port
@@ -66,7 +66,7 @@
     ansible_ssh_port: 22
   when: default_ssh is defined and
         default_ssh.state is defined and
-        default_ssh.state == "started"
+        default_ssh.state == 'started'
   register: ssh_port_set
 
 # If the SSH port is neither the default or the configured, give up

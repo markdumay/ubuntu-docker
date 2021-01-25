@@ -34,7 +34,7 @@
         path: "{{ work_dir }}"
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
-        mode: '0755'
+        mode: 0755
         state: directory
 
     # Note: ignores the top-level directory within the archive

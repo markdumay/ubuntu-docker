@@ -3,7 +3,7 @@
   # Use of this source code is governed by The MIT License (MIT) that can be found in the LICENSE file.
 - name: Update hostname with FQDN
   become: yes
-  command: hostnamectl set-hostname {{ inventory_hostname }}
+  command: "hostnamectl set-hostname {{ inventory_hostname }}"
   when: ansible_fqdn != inventory_hostname
   tags:
     - hostname
