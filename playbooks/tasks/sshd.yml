@@ -40,7 +40,7 @@
 # If {{ sshd_port }} is reachable, we don't need to do anything special
 - name: SSH port is configured properly
   set_fact:
-    ansible_port: "{{ sshd_port }}"
+    ansible_ssh_port: "{{ sshd_port }}"
   when: configured_ssh is defined and
         configured_ssh.state is defined and
         configured_ssh.state == "started"
@@ -63,7 +63,7 @@
 # If reachable on default SSH port, continue the following tasks with this port
 - name: Set inventory ansible_port to default
   set_fact:
-    ansible_port: 22
+    ansible_ssh_port: 22
   when: default_ssh is defined and
         default_ssh.state is defined and
         default_ssh.state == "started"
@@ -92,7 +92,7 @@
 # after this use the right ansible_port.
 - name: Ensure we use the configured SSH port for the remainder of the role
   set_fact:
-    ansible_port: "{{ sshd_port }}"
+    ansible_ssh_port: "{{ sshd_port }}"
 
 # Sanity check, make sure Ansible is able to connect to the host
 - name: Confirm host connection works
