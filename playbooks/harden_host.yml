@@ -40,6 +40,11 @@
         - ip
 
   tasks:
+    - name: Validate hostname and FQDN
+      include_tasks: tasks/hostname.yml
+      tags:
+        - timezone
+
     - name: Validate timezone
       include_tasks: tasks/timezone.yml
       tags:
