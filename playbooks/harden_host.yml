@@ -18,6 +18,7 @@
     sshd_client_alive_count_max: 2
     sshd_port: 2222
     sshd_max_sessions: 2
+    docker_swarm_multi_node: false
     ufw_outgoing_traffic:
       - 43                    # WHOIS
       - 53                    # DNS
@@ -28,6 +29,14 @@
       - "{{ sshd_port }}"     # SSH (remapped)
 
   pre_tasks:
+    # TODO: check this
+    - name: Add Docker Swarm ports to ufw
+      set_fact:
+        ufw_outgoing_traffic: "{{ ufw_outgoing_traffic + ufw_docker_swarm_ports }}"
+      when: docker_swarm_multi_node
+      tags:
+        - always
+
     - name: Configure SSH port and gather facts
       import_tasks: tasks/sshd.yml
       tags:
