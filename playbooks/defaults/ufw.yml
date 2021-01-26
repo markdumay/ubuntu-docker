@@ -1,4 +1,10 @@
 ---
 ufw_ddns_enabled: yes
 ufw_allow_outbound_icmp: yes
+ufw_docker_swarm_ports:
+  - 2376                  # Docker Machine
+  - 2377                  # Docker Swarm Nodes
+  - 7946                  # Container network discovery
+  - 7946                  # Container network discovery
+  - 4789                  # Overlay network traffic
 ...
