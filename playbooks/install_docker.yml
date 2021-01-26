@@ -1,0 +1,63 @@
+---
+# Copyright © 2021 Mark Dumay. All rights reserved.
+# Use of this source code is governed by The MIT License (MIT) that can be found in the LICENSE file.
+- name: Install Docker
+  hosts: test
+  user: admin
+  become: yes
+  roles:
+    - role: haxorof.docker_ce
+      become: yes
+  vars:
+    ansible_become_pass: "{{ users_enabled.admin.password }}"
+    docker_plugins:
+      - type: authz
+        alias: opa-docker-authz
+        name: openpolicyagent/opa-docker-authz-v2:0.7
+        args: opa_args="-policy-file /opa/policies/authz.rego"
+    docker_enable_audit: yes
+    docker_compose: true
+    docker_admin_sync: true # sync docker_users with users_enabled
+    docker_users: [] 
+    docker_daemon_config:
+      icc: false
+      log-driver: journald
+      userns-remap: default
+      live-restore: false # incompatible with Docker Swarm
+      userland-proxy: false
+      no-new-privileges: true
+
+  pre_tasks:
+    - name: Add admin users to Docker group
+      no_log: true # do not leak credentials to Ansible log
+      set_fact:
+        docker_users: "{{ (docker_users | default([])) | union([item.key]) }}"
+      loop: "{{ lookup('dict', users_enabled) }}"
+      when: docker_admin_sync and item.value.password is defined
+      tags:
+        - always
+
+    - name: Ensure /etc/docker/policies directory is present
+      become: yes
+      file:
+        path: /etc/docker/policies
+        state: directory
+      tags:
+        - always
+    
+    - name: OPA policy file
+      become: yes
+      copy:
+        dest: /etc/docker/policies/authz.rego
+        content: |
+          package docker.authz
+          allow = true
+      tags:
+        - always
+  
+  post_tasks:
+    - name: Configure Docker Swarm
+      include_tasks: tasks/swarm.yml
+      tags:
+        - swarm
+... 

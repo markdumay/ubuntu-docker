@@ -1,0 +1,44 @@
+---
+# Copyright © 2021 Mark Dumay. All rights reserved.
+# Use of this source code is governed by The MIT License (MIT) that can be found in the LICENSE file.
+- name: Include default variables
+  include_vars:
+    dir: ../defaults
+    files_matching: swarm.yml
+  tags:
+    - swarm
+
+- name: Enable Docker Swarm if needed
+  become: yes
+  register: swarm_status
+  shell: |
+    set -o pipefail
+    docker info 2>/dev/null | (grep -q 'Swarm: active' && echo -n 'SWARM_ACTIVE') ||
+    docker swarm init --advertise-addr {{ ansible_host }} --listen-addr {{ ansible_host }}
+  args:
+    executable: /bin/bash
+  changed_when: swarm_status.stdout != 'SWARM_ACTIVE'
+  when: docker_swarm
+  tags:
+    - swarm
+
+- name: Encrypt default Docker Swarm ingress network
+  become: yes
+  register: swarm_encrypted
+  shell: |
+    set -o pipefail
+    docker network inspect ingress 2>/dev/null | (grep -q 'encrypted' && echo -n 'SWARM_ENCRYPTED') ||
+    (
+      yes | docker network rm ingress 2>/dev/null
+      sleep 1
+      docker network create --driver overlay --opt encrypted --ingress ingress
+    )
+  args:
+    executable: /bin/bash
+  changed_when: swarm_encrypted.stdout != 'SWARM_ENCRYPTED'
+  when: docker_swarm
+  tags:
+    - swarm
+
+# TODO: investigate 'OPA policy file policy.rego does not exist'
+...
