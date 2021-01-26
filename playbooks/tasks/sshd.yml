@@ -96,9 +96,11 @@
 
 # Sanity check, make sure Ansible is able to connect to the host
 - name: Confirm host connection works
+  become: yes
   ping:
 
 # Run setup to gather facts here once the SSH port is set up
 - name: Run deferred setup to gather facts
+  become: yes
   setup:
 ...

@@ -11,6 +11,7 @@
     - ip
 
 - name: Get public IP of current machine
+  become: yes  
   register: public_ip
   shell: "dig +short myip.opendns.com @resolver1.opendns.com"
   when: ip_enable_public_address
