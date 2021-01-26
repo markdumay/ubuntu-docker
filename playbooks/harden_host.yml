@@ -1,7 +1,8 @@
 ---
 # Copyright © 2021 Mark Dumay. All rights reserved.
 # Use of this source code is governed by The MIT License (MIT) that can be found in the LICENSE file.
-- hosts: test
+- name: Harden an Ubuntu server
+  hosts: test
   user: admin
   gather_facts: no  # gathered by tasks/sshd.yml instead
   roles:
