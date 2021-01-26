@@ -1,6 +1,6 @@
 ---
-  # Copyright © 2021 Mark Dumay. All rights reserved.
-  # Use of this source code is governed by The MIT License (MIT) that can be found in the LICENSE file.
+# Copyright © 2021 Mark Dumay. All rights reserved.
+# Use of this source code is governed by The MIT License (MIT) that can be found in the LICENSE file.
 - name: Update hostname with FQDN
   become: yes
   command: "hostnamectl set-hostname {{ inventory_hostname }}"
