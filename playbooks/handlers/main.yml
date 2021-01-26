@@ -19,4 +19,8 @@
 - name: restart sshd
   become: yes
   command: "systemctl restart sshd"
+
+- name: update grub
+  become: yes
+  command: update-grub
 ...

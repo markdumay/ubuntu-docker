@@ -18,6 +18,7 @@
     sshd_client_alive_count_max: 2
     sshd_port: 2222
     sshd_max_sessions: 2
+    grub_enable_swap: true
     docker_swarm_multi_node: false
     ufw_outgoing_traffic:
       - 43                    # WHOIS
@@ -48,6 +49,12 @@
         - ufw
         - ssh
         - ip
+
+    - name: Enable swap support
+      import_tasks: tasks/swap.yml
+      tags:
+        - swap
+        - grub
 
   tasks:
     - name: Validate hostname and FQDN

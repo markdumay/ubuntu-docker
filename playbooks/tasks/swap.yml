@@ -1,0 +1,18 @@
+---
+- name: Set Debian-family swap grub cmdline
+  become: yes
+  lineinfile:
+    line: 'GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX cgroup_enable=memory swapaccount=1"'
+    dest: /etc/default/grub.d/99-hardening-swap.cfg
+    state: present
+    create: yes
+    mode: 0755
+    owner: root
+    group: root
+  when: ansible_os_family == "Debian" and grub_enable_swap
+  notify:
+    - update grub
+  tags:
+    - swap
+    - grub
+...
