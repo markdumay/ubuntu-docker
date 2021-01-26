@@ -29,7 +29,7 @@
 
 - name: Update password hash of enabled users if needed
   become: yes
-  no_log: true
+  no_log: true # do not leak credentials to Ansible log
   user:
     name: "{{ item.key }}"
     password: "{{ item.value.password | password_hash('bcrypt') }}"
