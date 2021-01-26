@@ -66,6 +66,12 @@
         - users
 
   post_tasks:
+    - name: Modify audit.rules
+      include_tasks: tasks/audit.yml
+      tags:
+        - auditd
+        - audit.rules
+    
     - name: Configure DDNS access for SSH access via ufw
       include_tasks: tasks/ufw.yml
       tags:

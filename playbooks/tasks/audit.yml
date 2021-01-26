@@ -1,0 +1,20 @@
+---
+# Copyright © 2021 Mark Dumay. All rights reserved.
+# Use of this source code is governed by The MIT License (MIT) that can be found in the LICENSE file.
+- name: Add '/etc/docker/daemon.json' to audit.rules
+  become: yes
+  lineinfile:
+    dest: /etc/audit/rules.d/hardening.rules
+    mode: 0600
+    owner: root
+    group: root
+    state: present
+    insertafter: "^-w /var/run/docker.sock -p rwxa -k docker"
+    line: "-w /etc/docker/daemon.json -p rwxa -k docker"          
+  notify:
+    - generate auditd
+    - restart auditd
+  tags:
+    - auditd
+    - audit.rules
+...
