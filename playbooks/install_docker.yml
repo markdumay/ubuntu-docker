@@ -17,6 +17,7 @@
         args: opa_args="-policy-file /opa/policies/authz.rego"
     docker_enable_audit: yes
     docker_compose: true
+    docker_compose_no_pip: true
     docker_admin_sync: true # sync docker_users with users_enabled
     docker_users: [] 
     docker_daemon_config:
