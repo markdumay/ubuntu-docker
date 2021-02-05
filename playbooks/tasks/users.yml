@@ -68,4 +68,66 @@
   when: users_remove_unauthorized
   tags:
     - users
+
+- name: Create tmp directory for each user
+  become: yes
+  no_log: true # do not leak credentials to Ansible log
+  file:
+    path: "/home/{{ item.key }}/tmp"
+    state: directory
+    owner: "{{ item.key }}"
+    group: "{{ item.key }}"
+    mode: 0750
+  loop: "{{ lookup('dict', users_enabled) }}"
+  when: item.value.password is defined
+  tags:
+    - users
+
+- name: Update environment variables for TMP directory
+  become: yes
+  no_log: true # do not leak credentials to Ansible log
+  lineinfile:
+    dest: "/home/{{ item.key }}/.profile"
+    create: yes
+    state: present
+    owner: "{{ item.key }}"
+    group: "{{ item.key }}"
+    mode: 0600
+    line: "export TEMP=$HOME/tmp; export TEMPDIR=$HOME/tmp; export TMP=$HOME/tmp; export TMPDIR=$HOME/tmp"
+  loop: "{{ lookup('dict', users_enabled) }}"
+  when: item.value.password is defined
+  tags:
+    - users
+
+- name: Source .bashrc at SSH login
+  become: yes
+  no_log: true # do not leak credentials to Ansible log
+  lineinfile:
+    dest: "/home/{{ item.key }}/.profile"
+    create: yes
+    state: present
+    owner: "{{ item.key }}"
+    group: "{{ item.key }}"
+    mode: 0600
+    line: "[ -f ~/.bashrc ] && . ~/.bashrc"
+  loop: "{{ lookup('dict', users_enabled) }}"
+  when: item.value.password is defined
+  tags:
+    - users
+
+- name: Update sudo environment variable for TMP directory
+  become: yes
+  no_log: true # do not leak credentials to Ansible log
+  lineinfile:
+    dest: "/home/{{ item.key }}/.bashrc"
+    create: yes
+    state: present
+    owner: "{{ item.key }}"
+    group: "{{ item.key }}"
+    mode: 0600
+    line: "alias sudo='sudo env TMPDIR=$TMPDIR $@'"
+  loop: "{{ lookup('dict', users_enabled) }}"
+  when: item.value.password is defined
+  tags:
+    - users
 ...
