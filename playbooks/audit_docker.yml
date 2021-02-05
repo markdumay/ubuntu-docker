@@ -1,0 +1,81 @@
+---
+# Copyright © 2021 Mark Dumay. All rights reserved.
+# Use of this source code is governed by The MIT License (MIT) that can be found in the LICENSE file.
+#
+# Clones the Docker Bench for Security GitHub repository and runs a default docker audit. Repository files are stored
+# in the user's home folder (e.g. '/home/user/docker-bench-security') to comply with the potential policy not to run 
+# executables from within the /tmp folder. The key score and suggestions are displayed as debug messages. The audit log
+# is stored locally.
+# Note: requires 'jmespath', install with `pip install jmespath`
+- name: Perform a Docker audit using Docker Bench for Security
+  hosts: test
+  user: admin
+  become: yes
+  vars:
+    ansible_become_pass: "{{ users_enabled.admin.password }}"
+    repository_url: 'https://github.com/docker/docker-bench-security'
+    work_dir: "/home/{{ ansible_user }}/docker-bench-security"
+    local_dir: '/tmp/ansible'
+    audit_log: "{{ work_dir }}/docker-bench-security.sh.log.json"
+    local_log: "{{ local_dir }}/{{ inventory_hostname }}/{{ audit_log }}"
+
+  tasks:
+    - name: Create working directory
+      file:
+        path: "{{ work_dir }}"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: 0755
+        state: directory
+
+    - name: Checkout Docker Bench for Security Git repository
+      git:
+        repo: "{{ repository_url }}"
+        dest: "{{ work_dir }}"
+
+    - name: Recursively change ownership of the cloned files
+      ansible.builtin.file:
+        path: "{{ work_dir }}"
+        state: directory
+        recurse: yes
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+
+    - name: Purge Docker Bench for Security log file
+      file:
+        path: "{{ audit_log }}"
+        state: absent
+
+    - name: Run a Docker Bench for Security audit
+      command: "{{ work_dir }}/docker-bench-security.sh -b"
+      args:
+        chdir: "{{ work_dir }}"
+        creates: "{{ audit_log }}"
+      register: audit
+
+    - name: Retrieve Docker Bench for Security audit log
+      fetch:
+        src: "{{ audit_log }}"
+        dest: "{{ local_dir }}"
+
+    - name: Retrieve the audit log
+      set_fact:
+        audit_json: "{{ lookup('file', '{{ local_log }}') | from_json }}"
+
+    - name: Interpret the audit results
+      set_fact:
+        score: "{{ audit_json | json_query('score') }}"
+        checks: "{{ audit_json | json_query('checks') }}"
+        results: "{{ audit_json | json_query('tests[].results[?result==`WARN`][].[join(`: `, [id, desc, details || ``])][]') }}"
+
+    - name: List suggestions
+      debug:
+        var: results
+
+    - name: Print score
+      debug:
+        msg: "Hardening index: {{ (100*(score|int / checks|int))|round|int }} (for {{ score }} out of {{ checks }} tests)"
+
+    - debug:
+        msg: "Local copy of audit log stored in '{{ local_log }}'"
+...
