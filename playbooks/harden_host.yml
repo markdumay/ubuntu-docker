@@ -43,7 +43,7 @@
       tags:
         - always
 
-    - name: Whitelist public IP address of local machine for SSH
+    - name: Allow public IP address of local machine to connect via SSH
       import_tasks: tasks/ip.yml
       tags:
         - ufw
