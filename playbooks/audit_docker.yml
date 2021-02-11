@@ -18,6 +18,7 @@
     local_dir: '/tmp/ansible'
     audit_log: "{{ work_dir }}/docker-bench-security.sh.log.json"
     local_log: "{{ local_dir }}/{{ inventory_hostname }}/{{ audit_log }}"
+    excluded_tests: 'docker_enterprise_configuration,check_5_2,check_5_11,check_5_14,check_5_25,check_5_28,check_7_1,check_7_6'
 
   tasks:
     - name: Create working directory
@@ -47,7 +48,7 @@
         state: absent
 
     - name: Run a Docker Bench for Security audit
-      command: "{{ work_dir }}/docker-bench-security.sh -b"
+      command: "{{ work_dir }}/docker-bench-security.sh -b -e {{ excluded_tests }}"
       args:
         chdir: "{{ work_dir }}"
         creates: "{{ audit_log }}"
