@@ -1,0 +1,10 @@
+version: "2"
+services:
+  hello:
+    image: hello-world
+    userns_mode: host
+    volumes:
+      - ./data:/data
+
+
+      # grep 'dockremap' /etc/subuid | awk -F':' '{printf $2}'

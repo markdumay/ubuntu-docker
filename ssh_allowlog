@@ -1,6 +1,6 @@
 /var/log/ssh_allow.log
 {
-daily
-maxsize 5M
-rotate 4
+    daily
+    maxsize 5M
+    rotate 4
 }

@@ -9,3 +9,6 @@
 
 # Keys used for Vagrant testing
 public-ssh
+
+# Provisioning data
+provision

@@ -1,8 +1,16 @@
 {
+    "data-root": "/data/docker",
     "icc": false,
     "userns-remap": "default",
     "log-driver": "syslog",
     "live-restore": false,
     "userland-proxy": false,
-    "no-new-privileges": true
+    "no-new-privileges": true,
+    "debug": false,
+    "tls": true,
+    "tlsverify": true,
+    "tlscacert": "/etc/docker/certs.d/localhost/ca.pem",
+    "tlscert": "/etc/docker/certs.d/localhost/server-cert.pem",
+    "tlskey": "/etc/docker/certs.d/localhost/server-key.pem",
+    "hosts": ["unix://", "tcp://0.0.0.0:2376"]
 }

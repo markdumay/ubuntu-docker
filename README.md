@@ -7,6 +7,27 @@
 </p>
 
 
+## Revised steps (prod)
+1. Install Ubuntu 20.04 from image (VPS Control Panel)
+2. Add users (ansible, admin)
+3. Create partitions
+4. Run hardening script
+5. Configure ufw
+6. Install Docker
+
+## Revised steps (test)
+1. Install vagrant `https://www.vagrantup.com/downloads`
+2. Install vagrant plugin `vagrant plugin install vagrant-vbguest`
+3. Install virtualbox `https://www.virtualbox.org/wiki/Downloads`
+4. Boot image `vagrant up`
+5. Add vagrant host `echo test ansible_port=22 ansible_host=10.7.8.45 >> /etc/ansible/hosts`
+6. Install ansible `https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html`
+7. Install hardening ansible role `ansible-galaxy role install konstruktoid.hardening`
+8. Harden image ``
+
+Run playbook
+
+
 <!-- Badges -->
 <p align="center">
     <a href="https://github.com/markdumay/ubuntu-docker/commits/master" alt="Last commit">
@@ -133,6 +154,7 @@ The `install` command executes the following workflow.
 * Brian Hogan - [How To Install and Use Docker on Ubuntu 20.04][digital_ocean_setup]
 * Vladimir Rakov - [How to Harden your Ubuntu 18.04 Server][hostadvice]
 * Thomas @ euroVPS - [20 Ways to Secure Your Linux VPS so You Don’t Get Hacked][eurovps]
+* Michael Aboagye - [How to Secure Docker for Production Environment?][geekflare]
 
 ## Donate
 <a href="https://www.buymeacoffee.com/markdumay" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/lato-orange.png" alt="Buy Me A Coffee" style="height: 51px !important;width: 217px !important;"></a>
@@ -154,7 +176,7 @@ Copyright © [Mark Dumay][blog]
 [livepatch]: https://ubuntu.com/livepatch
 [eurovps]: https://www.eurovps.com/blog/20-ways-to-secure-linux-vps/
 [hostadvice]: https://hostadvice.com/how-to/how-to-harden-your-ubuntu-18-04-server/
-
+[geekflare]: https://geekflare.com/securing-docker-for-production/
 
 <!-- MARKDOWN MAINTAINED LINKS -->
 <!-- TODO: add blog link
